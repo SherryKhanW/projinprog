@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "class_dataset.schema.json",
+  "title": "ClassDataset",
+  "description": "Onboarding responses for one class section. Inferred from class_dataset.csv (23 records, submitted 2026-09-11T01:47:37Z through 2026-09-12T18:22:33Z). Multi-value CSV cells are semicolon-separated; this schema describes the parsed record.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "$ref": "#/$defs/studentResponse"
+  },
+  "x-source": {
+    "file": "class_dataset.csv",
+    "format": "csv",
+    "header": true,
+    "delimiter": ",",
+    "quote": "\"",
+    "multilineFields": ["interests"],
+    "multiValueDelimiter": "; ",
+    "multiValueFields": ["tools", "availability"],
+    "integerFieldsStoredAsDigits": [
+      "skill_programming",
+      "skill_data_stats",
+      "skill_frontend_design",
+      "skill_business_pitch"
+    ],
+    "recordCount": 23
+  },
+  "$defs": {
+    "studentResponse": {
+      "title": "StudentResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "netid",
+        "name",
+        "school_year",
+        "intro_programming",
+        "skill_programming",
+        "skill_data_stats",
+        "skill_frontend_design",
+        "skill_business_pitch",
+        "tools",
+        "availability",
+        "working_style",
+        "interests",
+        "semester_goal",
+        "submitted_at"
+      ],
+      "properties": {
+        "netid": {
+          "description": "Respondent identifier. Unique in this export, but not a single NYU identifier kind: 19 NetIDs, 2 N-numbers, and 2 @nyu.edu addresses. Case is preserved (one NetID is mixed case).",
+          "type": "string",
+          "oneOf": [
+            {
+              "title": "NetID",
+              "pattern": "^[A-Za-z]{2,3}[0-9]{3,4}$"
+            },
+            {
+              "title": "N-number",
+              "pattern": "^N[0-9]{8}$"
+            },
+            {
+              "title": "NYU email",
+              "pattern": "^[A-Za-z]{2,3}[0-9]{3,4}@nyu\\.edu$"
+            }
+          ]
+        },
+        "name": {
+          "description": "Full name as entered on the form.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "school_year": {
+          "description": "Class standing. Closed set from the form.",
+          "type": "string",
+          "enum": ["First-year", "Sophomore", "Junior", "Senior"]
+        },
+        "intro_programming": {
+          "description": "Prior intro programming experience. took_it = completed the course, equivalent = placed out or covered the material elsewhere, neither = no prior course.",
+          "type": "string",
+          "enum": ["took_it", "equivalent", "neither"]
+        },
+        "skill_programming": {
+          "$ref": "#/$defs/likert"
+        },
+        "skill_data_stats": {
+          "$ref": "#/$defs/likert"
+        },
+        "skill_frontend_design": {
+          "$ref": "#/$defs/likert"
+        },
+        "skill_business_pitch": {
+          "$ref": "#/$defs/likert"
+        },
+        "tools": {
+          "description": "Tools the student listed. CSV cell is joined with '; ' and order is not canonical. Observed vocabulary is closed in this export.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["Python", "SQL", "Excel", "JavaScript", "R"]
+          }
+        },
+        "availability": {
+          "description": "Times the student can meet. CSV cell is joined with '; '. Six slots, matching a weekday/weekend by morning/afternoon/evening grid.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "Weekday mornings",
+              "Weekday afternoons",
+              "Weekday evenings",
+              "Weekend mornings",
+              "Weekend afternoons",
+              "Weekend evenings"
+            ]
+          }
+        },
+        "working_style": {
+          "description": "Free-text collaboration preference. The export contains one Excel error sentinel (#NAME?) which this schema rejects.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "not": {
+            "const": "#NAME?"
+          }
+        },
+        "interests": {
+          "description": "Free text. May be a comma list, a prose paragraph, or a newline-separated list inside a quoted CSV field. Trim leading and trailing whitespace; one row is truncated mid-word.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "semester_goal": {
+          "description": "Free-text goal for the semester.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "submitted_at": {
+          "description": "Form submission time. CSV values are ISO-8601 with a numeric offset and are 25 characters (all +00:00 in this export).",
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "likert": {
+      "description": "Self-rating from 1 (low) to 5 (high). Stored in the CSV as a single digit character.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    }
+  }
+}

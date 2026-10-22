@@ -1,0 +1,23 @@
+# Python environment
+venv/
+.venv/
+env/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Packaging
+*.egg-info/
+dist/
+build/
+
+# Secrets
+.env
+.env.*
+
+# macOS
+.DS_Store
