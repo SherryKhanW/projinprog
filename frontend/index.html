@@ -2,34 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Students</title>
+  <title>Class names</title>
 </head>
 <body>
-  <h1>Students</h1>
+  <h1>Class names</h1>
+  <p id="status"></p>
+  <ul id="names"></ul>
   <h2>Average competency</h2>
   <ul id="averages"></ul>
-  <p id="count"></p>
-  <ul id="names"></ul>
   <script>
-    fetch("/api/skill-averages")
-      .then((response) => response.json())
-      .then((averages) => {
-        const list = document.getElementById("averages");
-        for (const row of averages) {
-          const item = document.createElement("li");
-          item.textContent = row.skill + ": " + row.average;
-          list.appendChild(item);
-        }
-      });
+    function showError(message) {
+      document.getElementById("status").textContent = message;
+    }
 
     fetch("/api/names")
-      .then((response) => response.json())
-      .then((names) => {
-        document.getElementById("count").textContent = names.length + " students";
+      .then((response) => response.json().then((body) => ({ response, body })))
+      .then(({ response, body }) => {
+        if (!response.ok) {
+          showError(body.error || "Could not load names from the database.");
+          return;
+        }
+        document.getElementById("status").textContent = body.length + " students, from the database";
         const list = document.getElementById("names");
-        for (const name of names) {
+        for (const name of body) {
           const item = document.createElement("li");
           item.textContent = name;
+          list.appendChild(item);
+        }
+      })
+      .catch(() => showError("Could not reach the app."));
+
+    fetch("/api/skill-averages")
+      .then((response) => response.json().then((body) => ({ response, body })))
+      .then(({ response, body }) => {
+        if (!response.ok) {
+          return;
+        }
+        const list = document.getElementById("averages");
+        for (const row of body) {
+          const item = document.createElement("li");
+          item.textContent = row.skill + ": " + row.average;
           list.appendChild(item);
         }
       });

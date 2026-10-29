@@ -3,7 +3,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, send_from_directory
 
-from backend.db import list_names, skill_averages
+from backend.db import check_connection, list_names, skill_averages
 
 app = Flask(__name__)
 FRONTEND = Path(__file__).resolve().parent / "frontend"
@@ -14,14 +14,28 @@ def index():
     return send_from_directory(FRONTEND, "index.html")
 
 
+def database_response(loader):
+    try:
+        return jsonify(loader())
+    except Exception as exc:
+        message = str(exc).splitlines()[0]
+        return jsonify({"error": message}), 503
+
+
+@app.get("/api/db-status")
+def db_status():
+    result = check_connection()
+    return jsonify(result), (200 if result.get("ok") else 503)
+
+
 @app.get("/api/names")
 def names():
-    return jsonify(list_names())
+    return database_response(list_names)
 
 
 @app.get("/api/skill-averages")
 def averages():
-    return jsonify(skill_averages())
+    return database_response(skill_averages)
 
 
 if __name__ == "__main__":
